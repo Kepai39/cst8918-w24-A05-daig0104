@@ -53,6 +53,35 @@ resource "azurerm_public_ip" "publicip" {
   allocation_method   = "Static"
 }
 
+resource "azurerm_network_security_group" "lab5NSG" {
+  name                = "acceptanceTestSecurityGroup1"
+  location            = azurerm_resource_group.Lab5RG.location
+  resource_group_name = azurerm_resource_group.Lab5RG.name
+
+  security_rule {
+    name                       = "SSH-allow"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+    security_rule {
+    name                       = "HTTP-allow"
+    priority                   = 200
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
 resource "azurerm_virtual_network" "labVN" {
   name                = "lab5-network"
   location            = azurerm_resource_group.Lab5RG.location
@@ -64,6 +93,8 @@ resource "azurerm_subnet" "subnet1" {
   name                 = "subnet1"
   resource_group_name  = azurerm_resource_group.Lab5RG.name
   virtual_network_name = azurerm_virtual_network.labVN.name
-  address_prefixes     = ["10.0.1.0/24"]  # Subnet within the VNet
-  #network_security_group_id = azurerm_network_security_group.example_nsg.id
+  address_prefixes     = ["10.0.2.0/24"]
+  network_security_group_id = azurerm_network_security_group.lab5NSG.id
 }
+
+
