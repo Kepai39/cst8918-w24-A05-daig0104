@@ -110,8 +110,18 @@ resource "azurerm_network_interface" "lab5NIC" {
 resource "azurerm_network_interface_security_group_association" "attach_nsg" {
   network_interface_id = azurerm_network_interface.lab5NIC.id
   network_security_group_id = azurerm_network_security_group.lab5NSG.id
+}
+data "cloudinit_config" "dataresource" {
+  gzip          = false
+  base64_encode = false
 
-} 
+  part {
+    filename     = "init.sh"
+    content_type = "text/x-shellscript"
+
+    content = file("${path.module}/init.sh")
+  }
+}
 
 resource "azurerm_virtual_machine" "webServer" {
   name                  = "WebVM"
@@ -131,11 +141,13 @@ resource "azurerm_virtual_machine" "webServer" {
   os_profile {
     computer_name  = "webServerVM"
     admin_username = "${var.admin_username}"      
-    admin_password = "password1234!"  
   }
 
   os_profile_linux_config {
-    disable_password_authentication = false
+    disable_password_authentication = true
+    ssh_keys {
+        path     = "/home/${var.admin_username}/.ssh/authorized_keys"
+        key_data = file("~/.ssh/id_rsa.pub")
+    }
   }
 }
-
