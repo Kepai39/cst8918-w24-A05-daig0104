@@ -15,16 +15,19 @@ terraform {
   }
 }
 
+#the prefix that goes labels names, its default is set to daig0104 algonquin username
 variable "labelPrefix" {
  type        = string
  default     = "daig0104"
  description = "this is the prefix for the label"
 }
+#variable for region, default set to canada central
 variable "region" {
  type        = string
  default     = "Canada Central"
  description = "the defined region"
 }
+#the variable for admin username, i called it azureadmin for ease of use
 variable "admin_username" {
  type        = string
  default     = "azureadmin"
@@ -40,19 +43,19 @@ provider "azurerm" {
 provider "cloudinit" {
   # Configuration options
 }
-
+#creating the resource group
 resource "azurerm_resource_group" "Lab5RG" {
   name     = "${var.labelPrefix}-A05-RG"
   location = "${var.region}"
 }
-
+#creating the public ip
 resource "azurerm_public_ip" "publicip" {
   name                = "acceptanceTestPublicIp1"
   resource_group_name = azurerm_resource_group.Lab5RG.name
   location            = azurerm_resource_group.Lab5RG.location
   allocation_method   = "Static"
 }
-
+#creating the network security group with ssh allow rule, and http allow
 resource "azurerm_network_security_group" "lab5NSG" {
   name                = "acceptanceTestSecurityGroup1"
   location            = azurerm_resource_group.Lab5RG.location
@@ -81,21 +84,21 @@ resource "azurerm_network_security_group" "lab5NSG" {
     destination_address_prefix = "*"
   }
 }
-
+#creating the Virtual network
 resource "azurerm_virtual_network" "labVN" {
   name                = "lab5-network"
   location            = azurerm_resource_group.Lab5RG.location
   resource_group_name = azurerm_resource_group.Lab5RG.name
   address_space       = ["10.0.0.0/16"]
 }
-
+#creating the subnet which connects to above VN
 resource "azurerm_subnet" "subnet1" {
   name                 = "subnet1"
   resource_group_name  = azurerm_resource_group.Lab5RG.name
   virtual_network_name = azurerm_virtual_network.labVN.name
   address_prefixes     = ["10.0.2.0/24"]
 }
-
+#creating the NIC which connects to subnet, and public IP
 resource "azurerm_network_interface" "lab5NIC" {
   name                = "lab5-nic"
   location            = azurerm_resource_group.Lab5RG.location
@@ -107,12 +110,13 @@ resource "azurerm_network_interface" "lab5NIC" {
     public_ip_address_id          = azurerm_public_ip.publicip.id
   }
 }
-
+# this is to connect the NIC to the NSG
 resource "azurerm_network_interface_security_group_association" "attach_nsg" {
   network_interface_id = azurerm_network_interface.lab5NIC.id
   network_security_group_id = azurerm_network_security_group.lab5NSG.id
 }
 
+#this is to call the file to install apache onto vm
 data "cloudinit_config" "dataresource" {
   gzip          = false
   base64_encode = false
@@ -125,6 +129,7 @@ data "cloudinit_config" "dataresource" {
   }
 }
 
+#this is to create the VM which is connected to NIC
 resource "azurerm_virtual_machine" "webServer" {
   name                  = "WebVM"
   location              = azurerm_resource_group.Lab5RG.location
