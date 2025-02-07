@@ -27,7 +27,7 @@ variable "region" {
 }
 variable "admin_username" {
  type        = string
- default     = "daig0104"
+ default     = "azureadmin"
  description = "the username of admin"
 }
 
@@ -107,6 +107,7 @@ resource "azurerm_network_interface" "lab5NIC" {
     public_ip_address_id          = azurerm_public_ip.publicip.id
   }
 }
+
 resource "azurerm_network_interface_security_group_association" "attach_nsg" {
   network_interface_id = azurerm_network_interface.lab5NIC.id
   network_security_group_id = azurerm_network_security_group.lab5NSG.id
@@ -123,19 +124,29 @@ data "cloudinit_config" "dataresource" {
   }
 }
 
+
 resource "azurerm_virtual_machine" "webServer" {
   name                  = "WebVM"
   location              = azurerm_resource_group.Lab5RG.location
   resource_group_name   = azurerm_resource_group.Lab5RG.name
   network_interface_ids = [azurerm_network_interface.lab5NIC.id]
-  vm_size               = "Standard_B1s"   
+  vm_size               = "Standard_B1s"  
+  delete_os_disk_on_termination = true
+  delete_data_disks_on_termination = true
+
+  storage_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
+    version   = "latest"
+  } 
 
   storage_os_disk {
     name              = "webServerDisk"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
-    os_type           = "Linux"  # Use "Windows" if it's a Windows server
+    os_type           = "Linux"  
   }
 
   os_profile {
