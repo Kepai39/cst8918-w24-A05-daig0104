@@ -2,6 +2,9 @@
 ## Student: Catherine Daigle-41175118
 
 ### Prerequisite: 
+- git
+- Azure CLI
+- Terraform CLI
 - SSH key must be located on computer ssh-keygen -t rsa
 - the ssh key should be located in the ~/.ssh/id_rsa.pub.
 
