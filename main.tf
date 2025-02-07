@@ -60,7 +60,7 @@ resource "azurerm_network_security_group" "lab5NSG" {
 
   security_rule {
     name                       = "SSH-allow"
-    priority                   = 100
+    priority                   = 101
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -71,7 +71,7 @@ resource "azurerm_network_security_group" "lab5NSG" {
   }
     security_rule {
     name                       = "HTTP-allow"
-    priority                   = 200
+    priority                   = 100
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -152,7 +152,7 @@ resource "azurerm_virtual_machine" "webServer" {
   os_profile {
     computer_name  = "webServerVM"
     admin_username = "${var.admin_username}"
-    custom_data = data.cloudinit_config.config.rendered      
+    custom_data = data.cloudinit_config.dataresource.rendered      
   }
 
   os_profile_linux_config {
