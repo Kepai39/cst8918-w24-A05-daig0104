@@ -17,7 +17,7 @@ terraform {
 
 variable "labelPrefix" {
  type        = string
- default     = "daig"
+ default     = "daig0104"
  description = "this is the prefix for the label"
 }
 variable "region" {
@@ -112,6 +112,7 @@ resource "azurerm_network_interface_security_group_association" "attach_nsg" {
   network_interface_id = azurerm_network_interface.lab5NIC.id
   network_security_group_id = azurerm_network_security_group.lab5NSG.id
 }
+
 data "cloudinit_config" "dataresource" {
   gzip          = false
   base64_encode = false
@@ -123,7 +124,6 @@ data "cloudinit_config" "dataresource" {
     content = file("${path.module}/init.sh")
   }
 }
-
 
 resource "azurerm_virtual_machine" "webServer" {
   name                  = "WebVM"
@@ -151,7 +151,8 @@ resource "azurerm_virtual_machine" "webServer" {
 
   os_profile {
     computer_name  = "webServerVM"
-    admin_username = "${var.admin_username}"      
+    admin_username = "${var.admin_username}"
+    custom_data = data.cloudinit_config.config.rendered      
   }
 
   os_profile_linux_config {
@@ -162,6 +163,7 @@ resource "azurerm_virtual_machine" "webServer" {
     }
   }
 }
+
 
 output "resource_group_name" {
   value = azurerm_resource_group.Lab5RG.name
