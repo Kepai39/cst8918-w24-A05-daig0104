@@ -43,7 +43,7 @@ provider "cloudinit" {
 
 resource "azurerm_resource_group" "Lab5RG" {
   name     = "${var.labelPrefix}-A05-RG"
-  location = var.region
+  location = "${var.region}"
 }
 
 resource "azurerm_public_ip" "publicip" {
@@ -100,7 +100,6 @@ resource "azurerm_network_interface" "lab5NIC" {
   name                = "lab5-nic"
   location            = azurerm_resource_group.Lab5RG.location
   resource_group_name = azurerm_resource_group.Lab5RG.name
-
   ip_configuration {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.subnet1.id
@@ -108,5 +107,35 @@ resource "azurerm_network_interface" "lab5NIC" {
     public_ip_address_id          = azurerm_public_ip.publicip.id
   }
 }
+resource "azurerm_network_interface_security_group_association" "attach_nsg" {
+  network_interface_id = azurerm_network_interface.lab5NIC.id
+  network_security_group_id = azurerm_network_security_group.lab5NSG.id
 
+} 
+
+resource "azurerm_virtual_machine" "webServer" {
+  name                  = "WebVM"
+  location              = azurerm_resource_group.Lab5RG.location
+  resource_group_name   = azurerm_resource_group.Lab5RG.name
+  network_interface_ids = [azurerm_network_interface.lab5NIC.id]
+  vm_size               = "Standard_B1s"   
+
+  storage_os_disk {
+    name              = "webServerDisk"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
+    os_type           = "Linux"  # Use "Windows" if it's a Windows server
+  }
+
+  os_profile {
+    computer_name  = "webServerVM"
+    admin_username = "${var.admin_username}"      
+    admin_password = "password1234!"  
+  }
+
+  os_profile_linux_config {
+    disable_password_authentication = false
+  }
+}
 
