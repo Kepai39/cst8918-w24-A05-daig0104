@@ -6,5 +6,8 @@
 - the ssh key should be located in the ~/.ssh/id_rsa.pub.
 
 ### Screenshots:
+Screenshot of the Network Architecture Diagram:
+![Network Architecture](a05-architecture.png)
 Screenshot of apache website and ssh sign-in
 ![ssh access& apache](a05-demo.png)
+
