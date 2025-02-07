@@ -17,7 +17,7 @@ terraform {
 
 variable "labelPrefix" {
  type        = string
- default     = "default"
+ default     = "daig"
  description = "this is the prefix for the label"
 }
 variable "region" {
@@ -44,4 +44,11 @@ provider "cloudinit" {
 resource "azurerm_resource_group" "Lab5RG" {
   name     = "${var.labelPrefix}-A05-RG"
   location = var.region
+}
+
+resource "azurerm_public_ip" "publicip" {
+  name                = "acceptanceTestPublicIp1"
+  resource_group_name = azurerm_resource_group.Lab5RG.name
+  location            = azurerm_resource_group.Lab5RG.location
+  allocation_method   = "Static"
 }
