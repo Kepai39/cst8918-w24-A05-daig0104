@@ -52,3 +52,12 @@ resource "azurerm_public_ip" "publicip" {
   location            = azurerm_resource_group.Lab5RG.location
   allocation_method   = "Static"
 }
+
+resource "azurerm_virtual_network" "labVN" {
+  name                = "lab5-network"
+  location            = azurerm_resource_group.Lab5RG.location
+  resource_group_name = azurerm_resource_group.Lab5RG.name
+  address_space       = ["10.0.0.0/16"]
+}
+
+
