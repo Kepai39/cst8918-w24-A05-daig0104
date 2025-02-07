@@ -151,3 +151,10 @@ resource "azurerm_virtual_machine" "webServer" {
     }
   }
 }
+
+output "resource_group_name" {
+  value = azurerm_resource_group.Lab5RG.name
+}
+output "public_IP_address" {
+  value =  azurerm_public_ip.publicip.ip_address
+}
